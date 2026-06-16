@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 import requests
-import google.generativeai as genai
+from google import genai
 import os
 
 app = Flask(__name__)
@@ -10,7 +10,7 @@ WA_TOKEN = os.environ.get("WA_TOKEN")
 WA_PHONE_ID = os.environ.get("WA_PHONE_ID")
 VERIFY_TOKEN = "hotelrealef2024"
 
-genai.configure(api_key=GEMINI_API_KEY)
+client = genai.Client(api_key=GEMINI_API_KEY)
 
 HOTEL_INFO = """
 Eres el asistente virtual del Hotel Real EF, el hotel más moderno y único de La Unión, Huánuco, Perú.
@@ -20,22 +20,19 @@ INFORMACIÓN GENERAL:
 - Dirección: La Unión 10621, Provincia de Dos de Mayo, Huánuco, Perú
 - Teléfono/WhatsApp: +51 946 049 780
 - Check-in: 2:00 pm | Check-out: 12:00 pm
-- Calificación: 5 estrellas en Google
 
 HABITACIONES Y PRECIOS:
 - Habitación simple (1 cama): desde S/40 por noche
 - Habitación doble (2 camas): consultar precio
 - Habitación con Jacuzzi: precio especial, consultar
-- Todas con camas y puertas de madera de roble
 
-SERVICIOS INCLUIDOS:
+SERVICIOS:
 - WiFi, Netflix, TV cable
 - Agua caliente con terma y panel solar
 - Vista panorámica 360 grados desde azotea (acceso libre)
 - Cámaras de seguridad en todos los pisos
 - Estacionamiento de bicicletas y motos
-- Estacionamiento de autos a una cuadra
-- Delivery de comida coordinado con restaurantes cercanos
+- Delivery de comida con restaurantes cercanos
 
 Responde siempre en español, amable y breve.
 Para reservas dirígelos al +51 946 049 780.
@@ -44,8 +41,10 @@ Solo responde preguntas del hotel.
 
 def ask_gemini(message):
     try:
-        client = genai.GenerativeModel("gemini-1.5-flash-8b")
-        response = client.generate_content(HOTEL_INFO + "\nCliente pregunta: " + message)
+        response = client.models.generate_content(
+            model="gemini-2.0-flash",
+            contents=HOTEL_INFO + "\nCliente pregunta: " + message
+        )
         return response.text
     except Exception as e:
         print(f"Error Gemini: {e}")
