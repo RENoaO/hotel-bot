@@ -44,7 +44,7 @@ Solo responde preguntas del hotel.
 
 def ask_gemini(message):
     try:
-        client = genai.GenerativeModel("gemini-2.0-flash-lite")
+        client = genai.GenerativeModel("gemini-1.5-flash-8b")
         response = client.generate_content(HOTEL_INFO + "\nCliente pregunta: " + message)
         return response.text
     except Exception as e:
